@@ -39,7 +39,21 @@ if response.status_code == 200:
     }).reset_index()
 
     # Add column for temperature under 5 degrees
-    df['temperature_under_5'] = df['temperature'].apply(lambda x: 'Ja' if any(float(temp) < 5 for temp in str(x).split(',')) else 'Nein')
+    grouped['temperature_under_5'] = grouped['temperature'].apply(
+        lambda x: 'Ja' if any(float(temp) < 5 for temp in x.split(',')) else 'Nein'
+    )
+
+    # Add column for rain in two hours
+    df['precipitation_rain'] = df['precipitation'] > 0
+    rain_agg = df.groupby('date').agg({
+        'precipitation_rain': lambda x: 'Ja' if x.sum() >= 2 else 'Nein'
+    }).reset_index()
+
+    # Merge the rain_agg with grouped
+    grouped = grouped.merge(rain_agg, on='date')
+
+    # Rename the column to match the specification
+    grouped.rename(columns={'precipitation_rain': 'rained_for_2_hours'}, inplace=True)
 
     # Save to Excel
     grouped.to_excel(excel_filename, index=False)
