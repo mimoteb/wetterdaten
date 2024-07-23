@@ -19,16 +19,9 @@ response = requests.get(url, headers=headers)
 
 # Check if the request was successful
 if response.status_code == 200:
-    # Parse the JSON response
     data = response.json()
-
-    # Extract relevant data
     weather_data = data.get('weather', [])
-
-    # Create a DataFrame from the weather data
     df = pd.DataFrame(weather_data)
-
-    # Save the DataFrame to an Excel file
     df.to_excel(excel_filename, index=False)
     print(f"Weather data saved to {excel_filename}")
 else:
