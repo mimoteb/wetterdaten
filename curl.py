@@ -22,6 +22,15 @@ if response.status_code == 200:
     data = response.json()
     weather_data = data.get('weather', [])
     df = pd.DataFrame(weather_data)
+
+    # Drop specified columns
+    columns_to_drop = ['wind_direction', 'cloud_cover', 'dew_point', 'pressure_msl', 'sunshine']
+    df.drop(columns=columns_to_drop, inplace=True)
+
+    # Convert date format to dd.MM.yyyy
+    if 'timestamp' in df.columns:
+        df['timestamp'] = pd.to_datetime(df['timestamp'], utc=True).dt.strftime('%d.%m.%Y')
+
     df.to_excel(excel_filename, index=False)
     print(f"Weather data saved to {excel_filename}")
 else:
