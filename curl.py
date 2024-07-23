@@ -24,7 +24,11 @@ if response.status_code == 200:
     df = pd.DataFrame(weather_data)
 
     # Drop specified columns
-    columns_to_drop = ['wind_direction', 'cloud_cover', 'dew_point', 'pressure_msl', 'sunshine', 'wind_speed', 'visibility']
+    columns_to_drop = ['wind_direction', 'cloud_cover', 'dew_point', 'pressure_msl', 'sunshine', 'wind_speed',
+                       'visibility', 'fallback_source_ids', 'icon', 'solar', 'precipitation_probability',
+                       'precipitation_probability_6h', 'condition', 'wind_gust_direction', 'wind_gust_speed',
+                       'relative_humidity'
+                       ]
     df.drop(columns=columns_to_drop, inplace=True)
 
     # Convert date format to dd.MM.yyyy
