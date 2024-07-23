@@ -27,11 +27,22 @@ if response.status_code == 200:
     columns_to_keep = ['timestamp', 'temperature', 'precipitation']
     df = df[columns_to_keep]
 
-    # Convert date format to dd.MM.yyyy
-    if 'timestamp' in df.columns:
-        df['timestamp'] = pd.to_datetime(df['timestamp'], utc=True).dt.strftime('%d.%m.%Y')
+    # Convert timestamp to datetime and filter by time range
+    df['timestamp'] = pd.to_datetime(df['timestamp'], utc=True)
+    df = df[(df['timestamp'].dt.hour >= 5) & (df['timestamp'].dt.hour <= 14)]
 
-    df.to_excel(excel_filename, index=False)
+    # Group by date and aggregate data
+    df['date'] = df['timestamp'].dt.strftime('%d.%m.%Y')
+    grouped = df.groupby('date').agg({
+        'temperature': lambda x: ','.join(map(str, x)),
+        'precipitation': lambda x: ','.join(map(str, x))
+    }).reset_index()
+
+    # Add column for temperature under 5 degrees
+    df['temperature_under_5'] = df['temperature'].apply(lambda x: 'Ja' if any(float(temp) < 5 for temp in str(x).split(',')) else 'Nein')
+
+    # Save to Excel
+    grouped.to_excel(excel_filename, index=False)
     print(f"Weather data saved to {excel_filename}")
 else:
     print(f"Failed to retrieve data. Status code: {response.status_code}")
